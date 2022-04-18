@@ -8,7 +8,11 @@
 gdal_translate -srcwin 3200 5098 1024 1024 -b 1 -b 2 -b 3 -of JPEG m_2908513_se_16_1_20171110.tif naip4.jpg
 gdal_translate -srcwin 3200 4074 1024 1024 -b 1 -b 2 -b 3 -of JPEG m_2908513_se_16_1_20171110.tif naip3.jpg
 
-#### However, I did it by exporting from Global Mapper in 4 x 4 tiles.
+#### However, I did it by exporting from Global Mapper in 4 x 4 tiles.  
+Then I built the .vrt using
+> cd .\Christie_grid\
+> cd .\20190830_tile_4x4\
+> gdalbuildvrt -srcnodata 0 -vrtnodata 0 test.vrt 20190830_tile_4x4*.jpg
 
 #### Metadata for larger export box
 FILENAME=
