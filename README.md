@@ -10,7 +10,8 @@ Routines used to manipulate input grids and plot results for North Core Banks CO
     * Maps of labelled sed distribution `XXXX__labelled_sed_mass_diff`
     * Profiles of labelled sed and bathy `four_labelled_sed_profiles`  
     * Maps of elevation change for four cases `XXXX_elevation_change`  
-    * Maps of waterlevels, waves, vectorys `CSYV_vector_plotXX`  
+    * Maps of waterlevels, waves, vectors `CSYV_vector_plotXX`
+    * Max. stress plot (calcs of maxes take a whle) `
 
 
 `plot_models_a
