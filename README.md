@@ -16,7 +16,7 @@ Routines used to manipulate input grids and plot results for North Core Banks CO
     * Max. stress plot (calcs of maxes take a whle) `
 
 
-`plot_models_a
+`plot_models_and_observations` - Only plots the obs and modeled topobathy
 #### Files we dont need
 `plot_model`
 `plot_observations`
