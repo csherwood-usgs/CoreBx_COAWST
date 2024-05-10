@@ -32,7 +32,8 @@ This ended up being index 168, or y = 329.28 in island coordinates.
     * Max. stress plot (calcs of maxes take a whle) `
 
 
-`plot_models_and_observations` - Only plots the obs and modeled topobathy
+`plot_models_and_observations` - Only plots the obs and modeled topobathy, based on the earlier grid made with/by Christy  
+
 #### Files we dont need
 `plot_model`
 `plot_observations`
