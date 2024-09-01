@@ -32,9 +32,22 @@ This ended up being index 168, or y = 329.28 in island coordinates.
     * Max. stress plot (calcs of maxes take a whle) `
 
 
-`plot_models_and_observations` - Only plots the obs and modeled topobathy, based on the earlier grid made with/by Christy  
+`plot_models_and_observations` - Only plots the obs and modeled topobathy, based on the earlier grid made with/by Christy    
+
+`labels_to_ROMS_grid` - Interpolates landcover labels onto ROMS grid...only example is with older grid.  
+
+#### Other stuff
+`dems_to_ROMS_grid` - Adds canopy height TIFF to ROMS init.nc grid. Working with earlier Christy grid  
+
+`create_composite_exp_files` - Make multi-band tiffs with various derivatives in bands (elevation, slope, veg. indices)  
+
+`plot_observations` - Plots elev and elev diffs from TIFFS  
 
 #### Files we dont need
-`plot_model`
-`plot_observations`
+`plot_model`  
+
+
+#### Matlab files
+`export_bbox.m` - Exports grid corners to CSV  
     
+`load_grid.m` - Loads and old Christie grid  
