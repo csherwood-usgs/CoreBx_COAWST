@@ -116,4 +116,75 @@ def running_mean(y, npts):
     ys = np.convolve(y, box, mode='same')
     return ys
 
+def mask_array( x, wdm ):
+    s = wdm.shape
+    wdmr = np.ravel(wdm)
+    xr = np.ravel(x)
+    xr[np.where(wdmr==0)]=np.nan
+    xm = np.reshape( xr, s )
+    return xm
 
+def nan_array_low( x, val=0.1 ):
+    s = x.shape
+    xr = np.ravel(x)
+    xr[np.where(xr<=val)]=np.nan
+    xm = np.reshape( xr, s )
+    return xm
+
+def despeckle( x, iks = 3 ):
+    # despeckle like this? This expands the NaN regions with a 3x3 matrix
+    ks = np.ones((iks, iks)) / (iks*iks)
+    xs = convolve(x,ks,mode='nearest')
+    return xs
+
+# load the grid from CSYV and convert to island coordinates
+url_CSNV = 'http://geoport.whoi.edu/thredds/dodsC/vortexfs1/usgs/Projects/dorian/core_banks_jcw44/Output/dorian_his.ncml'
+url_CSYV = 'http://geoport.whoi.edu/thredds/dodsC/vortexfs1/usgs/Projects/dorian/core_banks_jcw45/Output/dorian_his.ncml'
+url_FSYV = 'http://geoport.whoi.edu/thredds/dodsC/vortexfs1/usgs/Projects/dorian/core_banks_jcw50/Output/dorian_his.ncml'
+url_FSNV = 'http://geoport.whoi.edu/thredds/dodsC/vortexfs1/usgs/Projects/dorian/core_banks_jcw51/Output/dorian_his.ncml'
+
+ds_CSYV = xr.open_dataset(url_CSYV)
+
+# load lat/lon, convert to island coordinates
+lon = np.squeeze( ds_CSYV.lon_rho.load().values )
+lat = np.squeeze( ds_CSYV.lat_rho.load().values )
+
+# Convert lat/lon to UTM zone 18N, and then to island coordinates
+transformer = Transformer.from_crs( 'epsg:4326', 'epsg:26918',  ) # WGS84 to UTM18
+utmx, utmy = transformer.transform( lat, lon )
+xisl, yisl = UTM2Island(utmx, utmy, eoff=383520.0, noff=3860830.0, rot=42.0)
+print('Shape of xisl, yisl: ', xisl.shape, yisl.shape)
+
+# Calculate area of each cell
+pn = np.squeeze( ds_CSYV.pn.load().values )
+pm = np.squeeze( ds_CSYV.pm.load().values )
+area = (1./pn * 1./pm )
+
+t=ds_CSYV.ocean_time.load()
+tstring = pd.to_datetime(t).strftime('%Y-%m-%d %H:%M')
+
+# Use a central line for cross-shore distance
+y = np.squeeze( yisl[:,550] )
+
+# load initial and final bathymetry
+# Minus sign converts from depth to elevation
+bathi = -ds_CSYV.bath[1,:,:].load().values
+bathf_CSYV = -ds_CSYV.bath[-1,:,:].load().values
+
+# find the average initial shoreline location
+mbathi = np.mean(bathi[:,100:1200], axis=1)
+
+ishorey = np.argwhere(mbathi>=0.)[0]
+print('Index of shoreline and y-location:')
+print(ishorey, y[ishorey])
+dy_offshore = y[ishorey]-y[0]
+dy_onshore = y[-1]-y[ishorey]
+print('Offshore model domain (dy_offshore): ',dy_offshore,', onshore (dy_onshore): ',dy_onshore)
+
+# use this for the cross-shore location by adding the offset
+offset = y[ishorey]
+y = y-offset
+yisl = yisl-offset
+xisl = xisl-np.min(xisl[ishorey])
+# make the alongshore coordinates
+x = np.squeeze( xisl[ishorey] - np.min(xisl[ishorey]) )
