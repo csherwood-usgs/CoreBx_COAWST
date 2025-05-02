@@ -15,7 +15,40 @@ print('Shape of xisl, yisl: ', xisl.shape, yisl.shape)
 * Offset was determined based on the averarge shoreline postion (z=0) between i=100:1200 in the final CSYV bathy.  
 This ended up being index 168, or y = 329.28 in island coordinates.
 
-### Plots for Warner Dorian paper
+### Plots for Warner Dorian paper  (revised May 2)
+
+There continue to be lots of extraneous files.
+
+Major changes associated with revisions to the paper:
+* Attempts to split up big files and produce figures with files
+* Improvments in multi-panel figures
+* Correction of labelled sediment calculations
+* Use of local versions of the concatenated `.his` files.
+
+* Redo figure 2, panel c
+* TODO - list figure changes
+
+I was having problems pulling the big 4D datasets (like SSC) from THREDDS, so John W. used ncks to concatenate many (but not all) of the
+ variables into one big `.his` file, which I downloaded to the Puget Systems Win10 desktop.
+
+`ncrcat -v Hwave,Dwave,bath,bustr,bustrc,bustrw,bvstr,bvstrc,bvstrw,sandfrac_01,sandfrac_02,sandfrac_03,sandmass_01,sandmass_02,sandmass_03,u,v,ubar,vbar,sand_01,sand_02,sand_03  Dorian_NCB_his_000**.nc Dorian_NCB_his.nc`
+
+Location on Poseidon: /proj/usgs-share/Projects/dorian/
+#### THREDDS server; access via NCML
+url_CSNV = 'http://geoport.whoi.edu/thredds/dodsC/vortexfs1/usgs/Projects/dorian/core_banks_jcw44/Output/dorian_his.ncml'  
+url_CSYV = 'http://geoport.whoi.edu/thredds/dodsC/vortexfs1/usgs/Projects/dorian/core_banks_jcw45/Output/dorian_his.ncml'  
+url_FSYV = 'http://geoport.whoi.edu/thredds/dodsC/vortexfs1/usgs/Projects/dorian/core_banks_jcw50/Output/dorian_his.ncml'  
+url_FSNV = 'http://geoport.whoi.edu/thredds/dodsC/vortexfs1/usgs/Projects/dorian/core_banks_jcw51/Output/dorian_his.ncml'  
+
+#### The local version does not have all of the variables
+# The local version does not have all of the variables
+url_CSNVc = 'D:/crs/src/CoreBx_COAWST/output/jcw44/Dorian_NCB_his.nc'  
+url_CSYVc = 'D:/crs/src/CoreBx_COAWST/output/jcw45/Dorian_NCB_his.nc'  
+url_FSYVc = 'D:/crs/src/CoreBx_COAWST/output/jcw50/Dorian_NCB_his.nc'  
+url_FSNVc = 'D:/crs/src/CoreBx_COAWST/output/jcw51/Dorian_NCB_his.nc'  
+
+
+   
 `sed_calcs` - Plots for (mostly) CSYV  
 
 `vol_calcs` - Recreate John's Matlab volume-change calcs
