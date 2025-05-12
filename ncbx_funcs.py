@@ -137,13 +137,74 @@ def despeckle( x, iks = 3 ):
     xs = convolve(x,ks,mode='nearest')
     return xs
 
+# These next two routines are from ChatGPT....not totally sure they are trustworthy
+
+def set_depth(h, zeta, hc, N, Vtransform, Vstretching, theta_s, theta_b, grid='rho'):
+    """
+    Calculates z_rho (center of depth layers, N=N)
+    """
+    # Prevent division by zero and handle theta_s = 0
+    theta_s_safe = np.maximum(theta_s, 1e-10)  # Ensure theta_s is not zero
+    sc = (np.arange(1, N + 1) - N - 0.5) / N if grid == 'rho' else np.arange(0, N + 1) / N - 1
+
+    # Handle Cs calculation more carefully to avoid NaN/Inf issues
+    Cs = (1 - theta_b) * np.sinh(theta_s_safe * sc) / np.sinh(theta_s_safe) + \
+         theta_b * (np.tanh(theta_s_safe * (sc + 0.5)) - np.tanh(theta_s_safe / 2)) / (2 * np.tanh(theta_s_safe / 2))
+
+    # Ensure no invalid values propagate
+    if np.any(np.isnan(Cs)) or np.any(np.isinf(Cs)):
+        print("Warning: NaN or Inf values in Cs. Adjusting.")
+        Cs = np.nan_to_num(Cs, nan=0.0, posinf=0.0, neginf=0.0)
+
+    if Vtransform == 1:
+        z = sc[:, np.newaxis, np.newaxis] * hc + Cs[:, np.newaxis, np.newaxis] * h
+        z = z + zeta[np.newaxis, :, :] * (1 + z / h)
+    elif Vtransform == 2:
+        z = (hc * sc[:, np.newaxis, np.newaxis] + Cs[:, np.newaxis, np.newaxis] * h) / \
+            (hc + h)
+        z = zeta[np.newaxis, :, :] + (zeta[np.newaxis, :, :] + h) * z
+    else:
+        raise ValueError("Unsupported Vtransform version")
+
+    return z
+
+
+def set_depth_w(h, zeta, hc, N, Vtransform, Vstretching, theta_s, theta_b):
+    """
+    Calculate depths at layer interfaces (w-points), size N+1.
+    """
+    sc = np.arange(0, N + 1) / N - 1  # w-levels from -1 to 0
+    theta_s_safe = np.maximum(theta_s, 1e-10)
+
+    Cs = (1 - theta_b) * np.sinh(theta_s_safe * sc) / np.sinh(theta_s_safe) + \
+         theta_b * (np.tanh(theta_s_safe * (sc + 0.5)) - np.tanh(theta_s_safe / 2)) / \
+         (2 * np.tanh(theta_s_safe / 2))
+
+    if Vtransform == 1:
+        z = sc[:, np.newaxis, np.newaxis] * hc + Cs[:, np.newaxis, np.newaxis] * h
+        z = z + zeta[np.newaxis, :, :] * (1 + z / h)
+    elif Vtransform == 2:
+        z = (hc * sc[:, np.newaxis, np.newaxis] + Cs[:, np.newaxis, np.newaxis] * h) / (hc + h)
+        z = zeta[np.newaxis, :, :] + (zeta[np.newaxis, :, :] + h) * z
+    else:
+        raise ValueError("Unsupported Vtransform version")
+    return z  # shape: (N+1, eta, xi)
+
+
 # load the grid from CSYV and convert to island coordinates
 url_CSNV = 'http://geoport.whoi.edu/thredds/dodsC/vortexfs1/usgs/Projects/dorian/core_banks_jcw44/Output/dorian_his.ncml'
 url_CSYV = 'http://geoport.whoi.edu/thredds/dodsC/vortexfs1/usgs/Projects/dorian/core_banks_jcw45/Output/dorian_his.ncml'
 url_FSYV = 'http://geoport.whoi.edu/thredds/dodsC/vortexfs1/usgs/Projects/dorian/core_banks_jcw50/Output/dorian_his.ncml'
 url_FSNV = 'http://geoport.whoi.edu/thredds/dodsC/vortexfs1/usgs/Projects/dorian/core_banks_jcw51/Output/dorian_his.ncml'
 
-ds_CSYV = xr.open_dataset(url_CSYV)
+# The local version does not have all of the variables
+url_CSNVc = 'D:/crs/src/CoreBx_COAWST/output/jcw44/Dorian_NCB_his.nc'
+url_CSYVc = 'D:/crs/src/CoreBx_COAWST/output/jcw45/Dorian_NCB_his.nc'
+url_FSYVc = 'D:/crs/src/CoreBx_COAWST/output/jcw50/Dorian_NCB_his.nc'
+url_FSNVc = 'D:/crs/src/CoreBx_COAWST/output/jcw51/Dorian_NCB_his.nc'
+
+# load main case
+ds_CSYV = xr.open_dataset(url_CSYV) 
 
 # load lat/lon, convert to island coordinates
 lon = np.squeeze( ds_CSYV.lon_rho.load().values )
@@ -188,3 +249,12 @@ yisl = yisl-offset
 xisl = xisl-np.min(xisl[ishorey])
 # make the alongshore coordinates
 x = np.squeeze( xisl[ishorey] - np.min(xisl[ishorey]) )
+
+# extract parameters needed for depth
+#Hz=set_depth(Vtransform, Vstretching, theta_s, theta_b, hc, N, igrid, h, zeta, report)
+#Hz=set_depth(2, 4, 0, 0, 0, 8, 1, h, zeta, 1
+theta_s = ds_CSYV['theta_s'].values.item()
+theta_b = ds_CSYV['theta_b'].values.item()
+hc = ds_CSYV['hc'].values.item()
+Vtransform = ds_CSYV['Vtransform'].values.item()
+Vstretching = ds_CSYV['Vstretching'].values.item()
