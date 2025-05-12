@@ -1,5 +1,10 @@
 # CoreBx_COAWST
 Routines used to manipulate input grids and plot results for North Core Banks COAWST model
+#### Grid info
+N = s_rho = 8 levels (evenly spaced)  
+grid is (1057, 1317)  
+eta_rho (y) 1057  
+xi_rho  (x) 1317  
 
 #### Notes on coordinate conversion
 * Converted lat/lon to 'island' coordinates in two steps:
@@ -14,6 +19,18 @@ print('Shape of xisl, yisl: ', xisl.shape, yisl.shape)
 (UTM2Island is in ncbx_funcs.py)  
 * Offset was determined based on the averarge shoreline postion (z=0) between i=100:1200 in the final CSYV bathy.  
 This ended up being index 168, or y = 329.28 in island coordinates.
+
+#### Notes on SSC calcs
+ssc (e.g., `sand01`,`sand02`, etc.) is kg/m3. These are summed, total SSC is kg/m3  
+sscc = ssc * delz [kg/m2]  
+sscu = ssc * delz * u [kg/m/s] - eastward flux in each layer  
+sscv = ssc * delz * v [kg/m/s] - southward flux in each layer  
+sscu_tot = vertical sum( sscu ) [kg/m/s]  
+sscv_tot = vertical sum( sscv ) [kg/m/s]  
+##### Net flux off island is:
+oflux = sum(sscv_tot[shoreline, all alongshore]) * dely [kg/s]  
+##### Convert to volume flux by dividing by bed density rho_bed
+rho_bed = 0.65*2650 [kg/m3]  
 
 ### Plots for Warner Dorian paper  (revised May 2)
 
@@ -40,8 +57,8 @@ url_CSYV = 'http://geoport.whoi.edu/thredds/dodsC/vortexfs1/usgs/Projects/dorian
 url_FSYV = 'http://geoport.whoi.edu/thredds/dodsC/vortexfs1/usgs/Projects/dorian/core_banks_jcw50/Output/dorian_his.ncml'  
 url_FSNV = 'http://geoport.whoi.edu/thredds/dodsC/vortexfs1/usgs/Projects/dorian/core_banks_jcw51/Output/dorian_his.ncml'  
 
-#### The local version does not have all of the variables
-# The local version does not have all of the variables
+#### Local version
+Downloaded from Poseidon. The local version does not have all of the variables  
 url_CSNVc = 'D:/crs/src/CoreBx_COAWST/output/jcw44/Dorian_NCB_his.nc'  
 url_CSYVc = 'D:/crs/src/CoreBx_COAWST/output/jcw45/Dorian_NCB_his.nc'  
 url_FSYVc = 'D:/crs/src/CoreBx_COAWST/output/jcw50/Dorian_NCB_his.nc'  
