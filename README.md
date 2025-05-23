@@ -4,7 +4,11 @@ Routines used to manipulate input grids and plot results for North Core Banks CO
 N = s_rho = 8 levels (evenly spaced)  
 grid is (1057, 1317)  
 eta_rho (y) 1057  
-xi_rho  (x) 1317  
+xi_rho  (x) 1317
+
+#### Resolution on the fine grid
+Cross-shore resolution ranges from 100 m at the seaward end to 17 to 1.5 from most of the grid.
+Alongshore resoluton is 1.5 m
 
 #### Notes on coordinate conversion
 * Converted lat/lon to 'island' coordinates in two steps:
